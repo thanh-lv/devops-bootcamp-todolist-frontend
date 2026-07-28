@@ -73,7 +73,7 @@ export default function Home() {
     <main className="min-h-screen p-8 bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="max-w-4xl mx-auto">
         <header className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Todo List CI/CD TEST</h1>
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">Todo List CI/CD TEST demo</h1>
           <p className="text-gray-600">Manage your tasks efficiently</p>
         </header>
 
