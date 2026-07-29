@@ -24,7 +24,7 @@ pipeline {
                 echo "Building Frontend image..."
                 sh """
                     docker build \
-                        --build-arg NEXT_PUBLIC_API_URL=http://[APP_VM_HOST]/api \
+                        --build-arg NEXT_PUBLIC_API_URL=http://${APP_VM_HOST}:5000/api \
                         --no-cache \
                         -t ${ECR_REPO_FRONTEND}:${IMAGE_TAG} \
                         -t ${ECR_REPO_FRONTEND}:latest \
@@ -67,25 +67,26 @@ pipeline {
                 }
             }
             steps {
-                echo "Pushing Frontend images to ECR..."
+                echo "Pushing Frontend image to ECR..."
                 sh """
                     export HOME=/var/jenkins_home
                     aws ecr get-login-password --region ${AWS_REGION} | \
                         docker login --username AWS --password-stdin ${ECR_REGISTRY}
 
                     docker push ${ECR_REPO_FRONTEND}:${IMAGE_TAG}
+                    docker push ${ECR_REPO_FRONTEND}:latest
                 """
             }
         }
 
-        stage('6. Deploy to Dev (App VM)') {
+        stage('6. Deploy Frontend to Dev (App VM)') {
             when {
                 expression {
                     return env.BRANCH_NAME == 'master' || env.GIT_BRANCH == 'master' || env.GIT_BRANCH == 'origin/master'
                 }
             }
             steps {
-                echo "Deploying Frontend (tag ${IMAGE_TAG}) + Backend (latest)..."
+                echo "Deploying Frontend (tag ${IMAGE_TAG})..."
                 sh """
                     export HOME=/var/jenkins_home
                     ECR_PASSWORD=\$(aws ecr get-login-password --region ${AWS_REGION})
@@ -102,12 +103,11 @@ pipeline {
                         echo '>>> BACKEND_IMAGE  =' \$BACKEND_IMAGE
                         echo '>>> FRONTEND_IMAGE =' \$FRONTEND_IMAGE
 
-                        docker rmi \$FRONTEND_IMAGE 2>/dev/null || true
+                        # Chỉ recreate frontend, không đụng backend
+                        docker compose pull frontend
+                        docker compose up -d --no-deps --force-recreate frontend
 
-                        docker compose pull
-                        docker compose up -d --remove-orphans --force-recreate
-
-                        echo '>>> Deploy done!'
+                        echo '>>> Deploy Frontend done!'
                     "
                 """
             }
