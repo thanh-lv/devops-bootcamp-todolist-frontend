@@ -94,7 +94,7 @@ pipeline {
 
                         echo \${ECR_PASSWORD} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
 
-                        export BACKEND_IMAGE=${ECR_REPO_FRONTEND}:latest
+                        export BACKEND_IMAGE=${ECR_REPO_BACKEND}:latest
                         export FRONTEND_IMAGE=${ECR_REPO_FRONTEND}:${IMAGE_TAG}
 
                         echo '>>> BACKEND_IMAGE  =' \$BACKEND_IMAGE
