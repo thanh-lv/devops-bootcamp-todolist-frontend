@@ -24,6 +24,8 @@ pipeline {
                 echo "Building Frontend image..."
                 sh """
                     docker build \
+                        --build-arg NEXT_PUBLIC_API_URL=http://[APP_VM_HOST]/api \
+                        --no-cache \
                         -t ${ECR_REPO_FRONTEND}:${IMAGE_TAG} \
                         -t ${ECR_REPO_FRONTEND}:latest \
                         .
@@ -31,9 +33,9 @@ pipeline {
             }
         }
 
-        stage('3. Test Backend') {
+        stage('3. Test Frontend') {
             steps {
-                echo "Running Backend tests..."
+                echo "Running Frontend tests..."
                 sh """
                     docker run --rm \
                         ${ECR_REPO_FRONTEND}:${IMAGE_TAG} \
